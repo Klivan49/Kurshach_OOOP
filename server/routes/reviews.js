@@ -79,16 +79,30 @@ router.post('/game/:gameId', authenticateToken, async (req, res) => {
       [avgMark, gameId]
     );
 
-    // Log activity
-    await pool.execute(
-      'INSERT INTO activitylog (idUser, Action, TableName, RecordID, NewValue) VALUES (?, ?, ?, ?, ?)',
-      [req.user.idUser, 'CREATE', 'review', result.insertId, JSON.stringify(req.body)]
-    );
+    // Log activity (optional, may fail if table doesn't exist)
+    try {
+      await pool.execute(
+        'INSERT INTO activitylog (idUser, Action, TableName, RecordID, NewValue) VALUES (?, ?, ?, ?, ?)',
+        [req.user.idUser, 'CREATE', 'review', result.insertId, JSON.stringify(req.body)]
+      );
+    } catch (logError) {
+      console.warn('Failed to log activity:', logError.message);
+      // Don't fail the request if logging fails
+    }
 
     res.status(201).json({ message: 'Review created successfully', idReview: result.insertId });
   } catch (error) {
     console.error('Create review error:', error);
-    res.status(500).json({ error: 'Internal server error' });
+    console.error('Error details:', {
+      message: error.message,
+      code: error.code,
+      sqlState: error.sqlState,
+      sqlMessage: error.sqlMessage
+    });
+    res.status(500).json({ 
+      error: 'Internal server error',
+      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+    });
   }
 });
 

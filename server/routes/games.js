@@ -18,6 +18,7 @@ router.get('/', async (req, res) => {
         g.Production_cost,
         g.idCategory,
         g.CreatedDate,
+        g.ImageURL,
         c.CategoryName,
         COALESCE(AVG(r.Mark), 0) as AvgMark,
         COUNT(DISTINCT r.idReview) as reviewCount,
@@ -122,15 +123,15 @@ router.get('/:id', async (req, res) => {
 // Create game (Admin/Moderator only)
 router.post('/', authenticateToken, requireModerator, async (req, res) => {
   try {
-    const { Name, Release_year, Description, Production_cost, idCategory } = req.body;
+    const { Name, Release_year, Description, Production_cost, idCategory, ImageURL } = req.body;
 
     if (!Name || !idCategory) {
       return res.status(400).json({ error: 'Name and category are required' });
     }
 
     const [result] = await pool.execute(
-      'INSERT INTO game (Name, Release_year, Description, Production_cost, idCategory) VALUES (?, ?, ?, ?, ?)',
-      [Name, Release_year || null, Description || null, Production_cost || null, idCategory]
+      'INSERT INTO game (Name, Release_year, Description, Production_cost, idCategory, ImageURL) VALUES (?, ?, ?, ?, ?, ?)',
+      [Name, Release_year || null, Description || null, Production_cost || null, idCategory, ImageURL || null]
     );
 
     // Log activity
@@ -150,7 +151,7 @@ router.post('/', authenticateToken, requireModerator, async (req, res) => {
 router.put('/:id', authenticateToken, requireModerator, async (req, res) => {
   try {
     const { id } = req.params;
-    const { Name, Release_year, Description, Production_cost, idCategory } = req.body;
+    const { Name, Release_year, Description, Production_cost, idCategory, ImageURL } = req.body;
 
     // Get old value
     const [oldGames] = await pool.execute('SELECT * FROM game WHERE idGame = ?', [id]);
@@ -159,8 +160,8 @@ router.put('/:id', authenticateToken, requireModerator, async (req, res) => {
     }
 
     await pool.execute(
-      'UPDATE game SET Name = ?, Release_year = ?, Description = ?, Production_cost = ?, idCategory = ? WHERE idGame = ?',
-      [Name, Release_year, Description, Production_cost, idCategory, id]
+      'UPDATE game SET Name = ?, Release_year = ?, Description = ?, Production_cost = ?, idCategory = ?, ImageURL = ? WHERE idGame = ?',
+      [Name, Release_year, Description, Production_cost, idCategory, ImageURL || null, id]
     );
 
     // Log activity

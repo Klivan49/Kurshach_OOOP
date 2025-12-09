@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { getCategories, getPlatforms } from '../../api';
+import { getCategories } from '../../api';
 import './Sidebar.css';
 
 function Sidebar({ filters, onFiltersChange }) {
   const [categories, setCategories] = useState([]);
-  const [platforms, setPlatforms] = useState([]);
 
   useEffect(() => {
     loadFilters();
@@ -13,27 +12,17 @@ function Sidebar({ filters, onFiltersChange }) {
   const loadFilters = async () => {
     try {
       const [catsRes, platRes] = await Promise.all([
-        getCategories(),
-        getPlatforms()
+        getCategories()
       ]);
       setCategories(catsRes.data);
-      setPlatforms(platRes.data);
     } catch (error) {
       console.error('Error loading filters:', error);
-      // Set empty arrays on error to prevent UI issues
-      setCategories([]);
-      setPlatforms([]);
     }
   };
 
   const handleCategoryChange = (categoryId) => {
     const newCategory = filters.category === categoryId ? null : categoryId;
     onFiltersChange({ ...filters, category: newCategory });
-  };
-
-  const handlePlatformChange = (platformId) => {
-    const newPlatform = filters.platform === platformId ? null : platformId;
-    onFiltersChange({ ...filters, platform: newPlatform });
   };
 
   const handleSortChange = (sortBy) => {
@@ -111,31 +100,6 @@ function Sidebar({ filters, onFiltersChange }) {
           ))}
         </div>
       </div>
-
-      <div className="sidebar-section">
-        <h3>Platform</h3>
-        <div className="filter-options">
-          <label className="checkbox-option">
-            <input
-              type="checkbox"
-              checked={filters.platform === null}
-              onChange={() => handlePlatformChange(null)}
-            />
-            <span>All</span>
-          </label>
-          {platforms.map((plat) => (
-            <label key={plat.idPlatform} className="checkbox-option">
-              <input
-                type="checkbox"
-                checked={filters.platform === plat.idPlatform}
-                onChange={() => handlePlatformChange(plat.idPlatform)}
-              />
-              <span>{plat.Platform_name}</span>
-            </label>
-          ))}
-        </div>
-      </div>
-
       <div className="sidebar-section">
         <h3>Minimum Score</h3>
         <div className="filter-options">

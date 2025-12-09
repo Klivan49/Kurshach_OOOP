@@ -1,18 +1,15 @@
 -- =====================================================
--- Game Rating Database Schema (COMPLETE RESET VERSION)
+-- Game Rating Database Schema (ИСПРАВЛЕННАЯ)
 -- =====================================================
 
--- 1. Reset Database (Deletes old version to prevent "Duplicate entry" errors)
-DROP DATABASE IF EXISTS game_rating;
-CREATE DATABASE game_rating;
+-- Create database
+CREATE DATABASE IF NOT EXISTS game_rating;
 USE game_rating;
 
 -- =====================================================
--- 2. Create Tables (Independent first)
+-- User Table
 -- =====================================================
-
--- Table: User
-CREATE TABLE user (
+CREATE TABLE IF NOT EXISTS user (
     idUser INT AUTO_INCREMENT PRIMARY KEY,
     Username VARCHAR(255) UNIQUE NOT NULL,
     PasswordHash VARCHAR(255) NOT NULL,
@@ -24,27 +21,19 @@ CREATE TABLE user (
     INDEX idx_active (IsActive)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Table: Category
-CREATE TABLE category (
+-- =====================================================
+-- Category Table
+-- =====================================================
+CREATE TABLE IF NOT EXISTS category (
     idCategory INT AUTO_INCREMENT PRIMARY KEY,
     CategoryName VARCHAR(100) NOT NULL UNIQUE,
     Description TEXT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Table: Platform
-CREATE TABLE platform (
-    idPlatform INT AUTO_INCREMENT PRIMARY KEY,
-    Platform_name VARCHAR(100) NOT NULL UNIQUE,
-    Type VARCHAR(50),
-    Description TEXT
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
-
 -- =====================================================
--- 3. Create Tables (Dependent on previous tables)
+-- Game Table
 -- =====================================================
-
--- Table: Game (Depends on Category)
-CREATE TABLE game (
+CREATE TABLE IF NOT EXISTS game (
     idGame INT AUTO_INCREMENT PRIMARY KEY,
     Name VARCHAR(255) NOT NULL,
     Release_year INT,
@@ -61,8 +50,20 @@ CREATE TABLE game (
     INDEX idx_name (Name)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Table: Game-Platform Junction (Depends on Game and Platform)
-CREATE TABLE game_s_platfo (
+-- =====================================================
+-- Platform Table
+-- =====================================================
+CREATE TABLE IF NOT EXISTS platform (
+    idPlatform INT AUTO_INCREMENT PRIMARY KEY,
+    Platform_name VARCHAR(100) NOT NULL UNIQUE,
+    Type VARCHAR(50),
+    Description TEXT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- =====================================================
+-- Game-Platform Junction Table
+-- =====================================================
+CREATE TABLE IF NOT EXISTS game_s_platfo (
     idGame INT NOT NULL,
     idPlatform INT NOT NULL,
     ReleaseDate DATE,
@@ -72,8 +73,10 @@ CREATE TABLE game_s_platfo (
     FOREIGN KEY (idPlatform) REFERENCES platform(idPlatform) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Table: Review (Depends on User, Game, Platform)
-CREATE TABLE review (
+-- =====================================================
+-- Review Table
+-- =====================================================
+CREATE TABLE IF NOT EXISTS review (
     idReview INT AUTO_INCREMENT PRIMARY KEY,
     idUser INT NOT NULL,
     idGame INT NOT NULL,
@@ -93,8 +96,11 @@ CREATE TABLE review (
     INDEX idx_active (IsActive)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Table: Activity Log (Depends on User)
-CREATE TABLE activitylog (
+-- =====================================================
+-- Activity Log Table - ИСПРАВЛЕННАЯ ВЕРСИЯ
+-- =====================================================
+-- ВАРИАНТ 1: idUser может быть NULL (рекомендуется)
+CREATE TABLE IF NOT EXISTS activitylog (
     idLog INT AUTO_INCREMENT PRIMARY KEY,
     idUser INT,
     Action VARCHAR(255),
@@ -111,7 +117,7 @@ CREATE TABLE activitylog (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- =====================================================
--- 4. Insert Sample Data
+-- Sample Data
 -- =====================================================
 
 -- Insert sample categories
@@ -130,25 +136,31 @@ INSERT INTO platform (Platform_name, Type, Description) VALUES
     ('PC Steam', 'PC', 'Valve Steam Platform'),
     ('Epic Games Store', 'PC', 'Epic Games Platform');
 
--- Insert sample user (Admin)
+-- Insert sample user
 INSERT INTO user (Username, PasswordHash, Privilege) VALUES
     ('admin', '7110eda4d09e062aa5e4a390b0a572ac0d2c64d7', 'admin');
 
--- Insert sample game
--- Note: idCategory 1 refers to 'RPG' created above
-INSERT INTO game (
+-- =====================================================
+-- End of Schema (FIXED VERSION)
+-- =====================================================INSERT INTO game (
+    idGame,
     Name,
     Release_year,
     Description,
     Production_cost,
     idCategory,
+    CreatedDate,
+    UpdatedDate,
     IsActive
-) 
+  )
 VALUES (
-    'The Witcher 3: Wild Hunt', 
-    2015, 
-    'An open world RPG with a rich story.', 
-    81000000.00, 
-    1, 
-    1
-);
+    idGame:int,
+    'Name:varchar',
+    Release_year:int,
+    'Description:text',
+    'Production_cost:decimal',
+    idCategory:int,
+    'CreatedDate:datetime',
+    'UpdatedDate:datetime',
+    'IsActive:tinyint'
+  );

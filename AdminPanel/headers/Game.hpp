@@ -19,6 +19,7 @@ struct GameData {
     std::string description;
     double productionCost;
     int idCategory;
+    std::string imageURL;
     bool isActive;
 };
 
@@ -31,10 +32,10 @@ public:
     
     // Game CRUD operations
     bool addGame(const std::string& name, int releaseYear, const std::string& description,
-                double productionCost, int idCategory);
+                double productionCost, int idCategory, const std::string& imageURL = "");
     bool deleteGame(int gameId);
     bool updateGame(int gameId, const std::string& name, int releaseYear,
-                   const std::string& description, double productionCost);
+                   const std::string& description, double productionCost, const std::string& imageURL = "");
     
     // Category operations
     bool addCategory(const std::string& categoryName, const std::string& description);

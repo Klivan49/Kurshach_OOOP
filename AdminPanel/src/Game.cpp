@@ -9,17 +9,43 @@ Game::Game(std::shared_ptr<DatabaseConnection> database) : db(database) {
 }
 
 bool Game::addGame(const std::string& name, int Release_year, const std::string& description,
-                   double Production_cost, int idCategory) {
+                   double Production_cost, int idCategory, const std::string& imageURL) {
     try {
         if (name.empty() || Release_year < 1990 || Release_year > 2100 || idCategory <= 0) {
             std::cerr << "ERROR: Invalid game parameters!\n";
             return false;
         }
 
+        // Escape single quotes in strings for SQL
+        std::string escapedName = name;
+        std::string escapedDesc = description;
+        std::string escapedImageURL = imageURL;
+        size_t pos = 0;
+        while ((pos = escapedName.find("'", pos)) != std::string::npos) {
+            escapedName.replace(pos, 1, "''");
+            pos += 2;
+        }
+        pos = 0;
+        while ((pos = escapedDesc.find("'", pos)) != std::string::npos) {
+            escapedDesc.replace(pos, 1, "''");
+            pos += 2;
+        }
+        pos = 0;
+        while ((pos = escapedImageURL.find("'", pos)) != std::string::npos) {
+            escapedImageURL.replace(pos, 1, "''");
+            pos += 2;
+        }
+
         std::ostringstream query;
-        query << "INSERT INTO game (Name, Release_year, Description, Production_cost, idCategory) "
-              << "VALUES ('" << name << "', " << Release_year << ", '" << description << "', "
-              << Production_cost << ", " << idCategory << ");";
+        query << "INSERT INTO game (Name, Release_year, Description, Production_cost, idCategory, ImageURL) "
+              << "VALUES ('" << escapedName << "', " << Release_year << ", '" << escapedDesc << "', "
+              << Production_cost << ", " << idCategory << ", ";
+        if (imageURL.empty()) {
+            query << "NULL";
+        } else {
+            query << "'" << escapedImageURL << "'";
+        }
+        query << ");";
 
         return db->executeQuery(query.str());
     } catch (const std::exception& e) {
@@ -46,17 +72,43 @@ bool Game::deleteGame(int gameId) {
 }
 
 bool Game::updateGame(int gameId, const std::string& name, int Release_year,
-                     const std::string& description, double Production_cost) {
+                     const std::string& description, double Production_cost, const std::string& imageURL) {
     try {
         if (gameId <= 0 || name.empty()) {
             std::cerr << "ERROR: Invalid parameters!\n";
             return false;
         }
 
+        // Escape single quotes
+        std::string escapedName = name;
+        std::string escapedDesc = description;
+        std::string escapedImageURL = imageURL;
+        size_t pos = 0;
+        while ((pos = escapedName.find("'", pos)) != std::string::npos) {
+            escapedName.replace(pos, 1, "''");
+            pos += 2;
+        }
+        pos = 0;
+        while ((pos = escapedDesc.find("'", pos)) != std::string::npos) {
+            escapedDesc.replace(pos, 1, "''");
+            pos += 2;
+        }
+        pos = 0;
+        while ((pos = escapedImageURL.find("'", pos)) != std::string::npos) {
+            escapedImageURL.replace(pos, 1, "''");
+            pos += 2;
+        }
+
         std::ostringstream query;
-        query << "UPDATE game SET Name = '" << name << "', Release_year = " << Release_year
-              << ", Description = '" << description << "', Production_cost = "
-              << Production_cost << " WHERE idGame = " << gameId << ";";
+        query << "UPDATE game SET Name = '" << escapedName << "', Release_year = " << Release_year
+              << ", Description = '" << escapedDesc << "', Production_cost = "
+              << Production_cost << ", ImageURL = ";
+        if (imageURL.empty()) {
+            query << "NULL";
+        } else {
+            query << "'" << escapedImageURL << "'";
+        }
+        query << " WHERE idGame = " << gameId << ";";
 
         return db->executeQuery(query.str());
     } catch (const std::exception& e) {
@@ -123,7 +175,7 @@ bool Game::updateCategory(int categoryId, const std::string& categoryName,
 std::vector<GameData> Game::getAllGames() {
     std::vector<GameData> games;
     try {
-        std::string query = "SELECT idGame, Name, Release_year, Description, Production_cost, idCategory, IsActive "
+        std::string query = "SELECT idGame, Name, Release_year, Description, Production_cost, idCategory, ImageURL, IsActive "
                            "FROM game;";
         MYSQL_RES* result = db->getQueryResult(query);
 
@@ -141,7 +193,8 @@ std::vector<GameData> Game::getAllGames() {
             game.description = row[3] ? row[3] : "";
             game.productionCost = std::stod(row[4] ? row[4] : "0.0");
             game.idCategory = std::stoi(row[5] ? row[5] : "0");
-            game.isActive = (row[6] && std::string(row[6]) == "1");
+            game.imageURL = row[6] ? row[6] : "";
+            game.isActive = (row[7] && std::string(row[7]) == "1");
             games.push_back(game);
         }
 
@@ -153,7 +206,7 @@ std::vector<GameData> Game::getAllGames() {
 }
 
 GameData Game::getGameById(int gameId) {
-    GameData game = {-1, "", 0, "", 0.0, 0, false};
+    GameData game = {-1, "", 0, "", 0.0, 0, "", false};
     try {
         if (gameId <= 0) {
             std::cerr << "ERROR: Invalid game ID!\n";
@@ -161,7 +214,7 @@ GameData Game::getGameById(int gameId) {
         }
 
         std::ostringstream query;
-        query << "SELECT idGame, Name, Release_year, Description, Production_cost, idCategory, IsActive "
+        query << "SELECT idGame, Name, Release_year, Description, Production_cost, idCategory, ImageURL, IsActive "
               << "FROM game WHERE idGame = " << gameId << ";";
 
         MYSQL_RES* result = db->getQueryResult(query.str());
@@ -177,7 +230,8 @@ GameData Game::getGameById(int gameId) {
             game.description = row[3] ? row[3] : "";
             game.productionCost = std::stod(row[4] ? row[4] : "0.0");
             game.idCategory = std::stoi(row[5] ? row[5] : "0");
-            game.isActive = (row[6] && std::string(row[6]) == "1");
+            game.imageURL = row[6] ? row[6] : "";
+            game.isActive = (row[7] && std::string(row[7]) == "1");
         }
 
         db->freeResult(result);
@@ -196,7 +250,7 @@ std::vector<GameData> Game::getGamesByCategory(int categoryId) {
         }
 
         std::ostringstream query;
-        query << "SELECT idGame, Name, Release_year, Description, Production_cost, idCategory, IsActive "
+        query << "SELECT idGame, Name, Release_year, Description, Production_cost, idCategory, ImageURL, IsActive "
               << "FROM game WHERE idCategory = " << categoryId << ";";
 
         MYSQL_RES* result = db->getQueryResult(query.str());
@@ -213,7 +267,8 @@ std::vector<GameData> Game::getGamesByCategory(int categoryId) {
             game.description = row[3] ? row[3] : "";
             game.productionCost = std::stod(row[4] ? row[4] : "0.0");
             game.idCategory = std::stoi(row[5] ? row[5] : "0");
-            game.isActive = (row[6] && std::string(row[6]) == "1");
+            game.imageURL = row[6] ? row[6] : "";
+            game.isActive = (row[7] && std::string(row[7]) == "1");
             games.push_back(game);
         }
 

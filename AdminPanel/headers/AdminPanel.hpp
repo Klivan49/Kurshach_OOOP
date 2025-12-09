@@ -124,6 +124,7 @@ private:
     // Game operations
     void showAllGames();
     void addNewGame();
+    void updateGame();
     void deleteGame();
     void manageCategories();
 

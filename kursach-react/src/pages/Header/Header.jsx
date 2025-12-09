@@ -18,16 +18,9 @@ function Header({ user, onLogout, onLogin }) {
     <header className="header">
       <div className="header-container">
         <div className="logo">
-          <h1>GameCritic</h1>
+          <h1>KlivanCritic</h1>
           <span className="logo-subtitle">Game Reviews & Ratings</span>
         </div>
-
-        <nav className="nav">
-          <a href="#games">Games</a>
-          <a href="#new">New Releases</a>
-          <a href="#top">Top Rated</a>
-          <a href="#coming">Coming Soon</a>
-        </nav>
 
         <div className="auth-section">
           {user ? (

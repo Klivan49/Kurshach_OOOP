@@ -33,15 +33,9 @@ function HomePage({ user }) {
         minRating: filters.minRating || undefined,
       };
       const response = await getGames(params);
-      setGames(response.data || []);
+      setGames(response.data);
     } catch (error) {
       console.error('Error loading games:', error);
-      // Set empty array on error
-      setGames([]);
-      // Show user-friendly error message
-      if (error.code === 'ERR_NETWORK') {
-        console.error('Cannot connect to backend. Make sure backend is running and accessible.');
-      }
     } finally {
       setLoading(false);
     }

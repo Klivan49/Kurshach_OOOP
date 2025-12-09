@@ -22,11 +22,15 @@ function GameCard({ game, onClick }) {
       <div className="game-image-container">
         <img
           src={
+            game.ImageURL || 
             game.image ||
             `https://via.placeholder.com/200x300/1a1a1a/66cc33?text=${encodeURIComponent(game.Name.substring(0, 20))}`
           }
           alt={game.Name}
           className="game-image"
+          onError={(e) => {
+            e.target.src = `https://via.placeholder.com/200x300/1a1a1a/66cc33?text=${encodeURIComponent(game.Name.substring(0, 20))}`;
+          }}
         />
         {avgScore && (
           <div className={`game-score ${getScoreClass(avgScore)}`}>

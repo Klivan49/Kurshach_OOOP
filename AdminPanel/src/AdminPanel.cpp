@@ -25,9 +25,9 @@ void AdminPanel::displayAvailableUsers() {
             return;
         }
 
-        std::cout << "\n╔════════════════════════════════════════════════════════╗\n";
-        std::cout << "║          AVAILABLE USERS                               ║\n";
-        std::cout << "╚════════════════════════════════════════════════════════╝\n";
+        std::cout << "\n════════════════════════════════════════════════════════\n";
+        std::cout << "          AVAILABLE USERS                               \n";
+        std::cout << "════════════════════════════════════════════════════════\n";
         std::cout << std::left << std::setw(5) << "ID" << std::setw(20) << "Username" 
                   << std::setw(15) << "Privilege" << "Status\n";
         std::cout << "──────────────────────────────────────────────────────\n";
@@ -52,12 +52,13 @@ void AdminPanel::displayAvailableGames() {
             return;
         }
 
-        std::cout << "\n╔════════════════════════════════════════════════════════════════════╗\n";
-        std::cout << "║               AVAILABLE GAMES                                     ║\n";
-        std::cout << "╚════════════════════════════════════════════════════════════════════╝\n";
+        std::cout << "\n══════════════════════════════════════════════════════════════════════════════\n";
+        std::cout << "                        AVAILABLE GAMES                                      \n";
+        std::cout << "══════════════════════════════════════════════════════════════════════════════\n";
         std::cout << std::left << std::setw(5) << "ID" << std::setw(25) << "Name" 
-                  << std::setw(10) << "Year" << std::setw(12) << "Category" << "Status\n";
-        std::cout << "────────────────────────────────────────────────────────────────────\n";
+                  << std::setw(10) << "Year" << std::setw(12) << "Category" 
+                  << std::setw(8) << "Image" << "Status\n";
+        std::cout << "────────────────────────────────────────────────────────────────────────────────\n";
 
         for (const auto& game : games) {
             std::string categoryName = "Unknown";
@@ -68,10 +69,13 @@ void AdminPanel::displayAvailableGames() {
                 }
             } catch (...) {}
 
+            std::string imageStatus = game.imageURL.empty() ? "No" : "Yes";
+
             std::cout << std::left << std::setw(5) << game.idGame 
-                      << std::setw(25) << game.name 
+                      << std::setw(25) << (game.name.length() > 24 ? game.name.substr(0, 21) + "..." : game.name)
                       << std::setw(10) << game.releaseYear 
                       << std::setw(12) << categoryName 
+                      << std::setw(8) << imageStatus
                       << (game.isActive ? "Active ✓" : "Inactive ✗") << "\n";
         }
         std::cout << "\n";
@@ -88,9 +92,9 @@ void AdminPanel::displayAvailablePlatforms() {
             return;
         }
 
-        std::cout << "\n╔════════════════════════════════════════════════════════╗\n";
-        std::cout << "║           AVAILABLE PLATFORMS                          ║\n";
-        std::cout << "╚════════════════════════════════════════════════════════╝\n";
+        std::cout << "\n════════════════════════════════════════════════════════\n";
+        std::cout << "           AVAILABLE PLATFORMS                          \n";
+        std::cout << "════════════════════════════════════════════════════════\n";
         std::cout << std::left << std::setw(5) << "ID" << std::setw(20) << "Platform Name" 
                   << std::setw(15) << "Type" << "\n";
         std::cout << "──────────────────────────────────────────────────────\n";
@@ -114,9 +118,9 @@ void AdminPanel::displayAvailableCategories() {
             return;
         }
 
-        std::cout << "\n╔════════════════════════════════════════════════════════╗\n";
-        std::cout << "║            AVAILABLE CATEGORIES                        ║\n";
-        std::cout << "╚════════════════════════════════════════════════════════╝\n";
+        std::cout << "\n════════════════════════════════════════════════════════\n";
+        std::cout << "            AVAILABLE CATEGORIES                        \n";
+        std::cout << "════════════════════════════════════════════════════════\n";
         std::cout << std::left << std::setw(5) << "ID" << std::setw(20) << "Category Name" 
                   << "Description\n";
         std::cout << "──────────────────────────────────────────────────────\n";
@@ -272,6 +276,7 @@ int AdminPanel::getValidatedMark() {
     }
 }
 
+
 std::string AdminPanel::getValidatedText(const std::string& prompt, int minLen, int maxLen) {
     std::string text;
 
@@ -346,9 +351,9 @@ void AdminPanel::clearScreen() {
 }
 
 void AdminPanel::printHeader(const std::string& title) {
-    std::cout << "\n╔════════════════════════════════════════════════════════════╗\n";
-    std::cout << "║ " << std::left << std::setw(56) << title << "║\n";
-    std::cout << "╚════════════════════════════════════════════════════════════╝\n\n";
+    std::cout << "\n════════════════════════════════════════════════\n";
+    std::cout << " " << std::left << std::setw(56) << title << "\n";
+    std::cout << "════════════════════════════════════════════════\n\n";
 }
 
 int AdminPanel::getKeyPress() {
@@ -388,6 +393,25 @@ void AdminPanel::run() {
     while (true) {
         clearScreen();
         printHeader("GAME RATING ADMIN PANEL");
+        
+        // Display statistics
+        try {
+            int gameCount = gameMgr->getGameCount();
+            int categoryCount = gameMgr->getCategoryCount();
+            int userCount = userMgr->getUserCount();
+            int platformCount = platformMgr->getPlatformCount();
+            
+            std::cout << "════════════════════════════════════════════════════════════\n";
+            std::cout << "                    STATISTICS                             \n";
+            std::cout << "════════════════════════════════════════════════════════════\n";
+            std::cout << "  Games: " << std::setw(47) << std::left << gameCount << "\n";
+            std::cout << "  Categories: " << std::setw(43) << std::left << categoryCount << "\n";
+            std::cout << "  Users: " << std::setw(48) << std::left << userCount << "\n";
+            std::cout << "  Platforms: " << std::setw(44) << std::left << platformCount << "\n";
+            std::cout << "════════════════════════════════════════════════════════════\n\n";
+        } catch (...) {
+            // Ignore errors in statistics
+        }
 
         std::vector<std::string> mainMenuOptions = {
             "User Management",
@@ -575,6 +599,7 @@ void AdminPanel::handleGameMenu() {
         std::vector<std::string> options = {
             "Show All Games",
             "Add New Game",
+            "Update Game",
             "Delete Game",
             "Manage Categories",
             "Back to Main Menu"
@@ -595,9 +620,10 @@ void AdminPanel::handleGameMenu() {
             switch (selectedOption) {
                 case 0: showAllGames(); break;
                 case 1: addNewGame(); break;
-                case 2: deleteGame(); break;
-                case 3: manageCategories(); break;
-                case 4: return;
+                case 2: updateGame(); break;
+                case 3: deleteGame(); break;
+                case 4: manageCategories(); break;
+                case 5: return;
                 default: break;
             }
         }
@@ -635,6 +661,7 @@ void AdminPanel::addNewGame() {
             std::cerr << "✗ ERROR: Year must be 1990-2100!\n";
         }
     }
+    std::cin.ignore();
 
     std::string description = getValidatedText("Enter description (10-1000 chars): ", 10, 1000);
 
@@ -650,16 +677,34 @@ void AdminPanel::addNewGame() {
             std::cerr << "✗ ERROR: Cost must be 0 or more!\n";
         }
     }
+    std::cin.ignore();
+
+    std::cout << "\n[ℹ] Image URL (optional, press Enter to skip):\n";
+    std::cout << "[ℹ] Examples:\n";
+    std::cout << "    - https://cdn.cloudflare.steamstatic.com/steam/apps/730/header.jpg\n";
+    std::cout << "    - https://images.igdb.com/igdb/image/upload/t_cover_big/co1wyy.jpg\n";
+    std::cout << "    - Leave empty for placeholder\n\n";
+    std::string imageURL;
+    std::cout << "Enter image URL (or press Enter to skip): ";
+    std::getline(std::cin, imageURL);
+    if (!imageURL.empty()) {
+        std::cout << "[✓] Image URL set!\n";
+    } else {
+        std::cout << "[ℹ] No image URL - will use placeholder\n";
+    }
 
     int categoryId = getValidatedCategoryId();
 
-    if (gameMgr->addGame(name, releaseYear, description, productionCost, categoryId)) {
+    if (gameMgr->addGame(name, releaseYear, description, productionCost, categoryId, imageURL)) {
         std::cout << "\n[✓] Game added successfully!\n";
+        if (!imageURL.empty()) {
+            std::cout << "[✓] Image URL saved: " << imageURL << "\n";
+        }
     } else {
         std::cerr << "\n✗ Failed to add game!\n";
     }
 
-    std::cout << "Press any key to continue...";
+    std::cout << "\nPress any key to continue...";
     std::getchar();
 }
 
@@ -681,6 +726,106 @@ int AdminPanel::getValidatedCategoryId() {
             std::cerr << "✗ ERROR: Category ID does not exist!\n";
         }
     }
+}
+
+void AdminPanel::updateGame() {
+    clearScreen();
+    printHeader("Update Game");
+
+    int gameId = getValidatedGameId();
+    
+    GameData currentGame = gameMgr->getGameById(gameId);
+    if (currentGame.idGame <= 0) {
+        std::cerr << "\n✗ ERROR: Game not found!\n";
+        std::cout << "Press any key to continue...";
+        std::getchar();
+        return;
+    }
+
+    std::cout << "\n[ℹ] Current game information:\n";
+    std::cout << "    Name: " << currentGame.name << "\n";
+    std::cout << "    Year: " << currentGame.releaseYear << "\n";
+    std::cout << "    Description: " << (currentGame.description.length() > 50 ? currentGame.description.substr(0, 47) + "..." : currentGame.description) << "\n";
+    std::cout << "    Cost: $" << currentGame.productionCost << "\n";
+    std::cout << "    Image URL: " << (currentGame.imageURL.empty() ? "Not set" : currentGame.imageURL) << "\n\n";
+
+    std::cout << "[ℹ] Enter new values (press Enter to keep current value):\n\n";
+
+    std::string name;
+    std::cout << "Enter game name (current: " << currentGame.name << "): ";
+    std::getline(std::cin, name);
+    if (name.empty()) {
+        name = currentGame.name;
+    } else if (!validateStringInput(name, 3, 255)) {
+        std::cerr << "✗ Invalid name length! Keeping current value.\n";
+        name = currentGame.name;
+    }
+
+    int releaseYear = currentGame.releaseYear;
+    std::string yearInput;
+    std::cout << "Enter release year (current: " << currentGame.releaseYear << "): ";
+    std::getline(std::cin, yearInput);
+    if (!yearInput.empty()) {
+        try {
+            int newYear = std::stoi(yearInput);
+            if (newYear >= 1990 && newYear <= 2100) {
+                releaseYear = newYear;
+            } else {
+                std::cerr << "✗ Invalid year! Keeping current value.\n";
+            }
+        } catch (...) {
+            std::cerr << "✗ Invalid input! Keeping current value.\n";
+        }
+    }
+
+    std::string description;
+    std::cout << "Enter description (current: " << (currentGame.description.length() > 30 ? currentGame.description.substr(0, 27) + "..." : currentGame.description) << "): ";
+    std::getline(std::cin, description);
+    if (description.empty()) {
+        description = currentGame.description;
+    } else if (!validateStringInput(description, 10, 1000)) {
+        std::cerr << "✗ Invalid description length! Keeping current value.\n";
+        description = currentGame.description;
+    }
+
+    double productionCost = currentGame.productionCost;
+    std::string costInput;
+    std::cout << "Enter production cost (current: $" << currentGame.productionCost << "): ";
+    std::getline(std::cin, costInput);
+    if (!costInput.empty()) {
+        try {
+            double newCost = std::stod(costInput);
+            if (newCost >= 0) {
+                productionCost = newCost;
+            } else {
+                std::cerr << "✗ Invalid cost! Keeping current value.\n";
+            }
+        } catch (...) {
+            std::cerr << "✗ Invalid input! Keeping current value.\n";
+        }
+    }
+
+    std::string imageURL = currentGame.imageURL;
+    std::cout << "\n[ℹ] Image URL (current: " << (currentGame.imageURL.empty() ? "Not set" : currentGame.imageURL) << "):\n";
+    std::cout << "    Enter new URL or 'clear' to remove, or press Enter to keep: ";
+    std::string imageInput;
+    std::getline(std::cin, imageInput);
+    if (imageInput == "clear" || imageInput == "CLEAR") {
+        imageURL = "";
+        std::cout << "[✓] Image URL will be cleared\n";
+    } else if (!imageInput.empty()) {
+        imageURL = imageInput;
+        std::cout << "[✓] Image URL updated\n";
+    }
+
+    if (gameMgr->updateGame(gameId, name, releaseYear, description, productionCost, imageURL)) {
+        std::cout << "\n[✓] Game updated successfully!\n";
+    } else {
+        std::cerr << "\n✗ Failed to update game!\n";
+    }
+
+    std::cout << "Press any key to continue...";
+    std::getchar();
 }
 
 void AdminPanel::deleteGame() {
@@ -844,9 +989,9 @@ void AdminPanel::viewGameReviews() {
     if (reviews.empty()) {
         std::cout << "[ℹ] No reviews for this game.\n";
     } else {
-        std::cout << "\n╔════════════════════════════════════════════════════════════════════╗\n";
-        std::cout << "║              GAME REVIEWS                                          ║\n";
-        std::cout << "╚════════════════════════════════════════════════════════════════════╝\n";
+        std::cout << "\n════════════════════════════════════════════════════════════════════\n";
+        std::cout << "              GAME REVIEWS                                          \n";
+        std::cout << "════════════════════════════════════════════════════════════════════\n";
         std::cout << std::left << std::setw(5) << "ID" << std::setw(15) << "User ID" 
                   << std::setw(8) << "Mark" << "Review Text\n";
         std::cout << "────────────────────────────────────────────────────────────────────\n";

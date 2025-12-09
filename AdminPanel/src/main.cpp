@@ -10,11 +10,12 @@
 
 void printStartupInfo() {
     std::cout << "\n";
-    std::cout << "╔════════════════════════════════════════════════════════════╗\n";
-    std::cout << "║                                                            ║\n";
-    std::cout << "║        GAME RATING ADMIN PANEL -- INITIALIZATION           ║\n";
-    std::cout << "║                                                            ║\n";
-    std::cout << "╚════════════════════════════════════════════════════════════╝\n\n";
+    std::cout << "════════════════════════════════════════════════════════════\n";
+    std::cout << "                                                            \n";
+    std::cout << "        GAME RATING ADMIN PANEL v2.0                        \n";
+    std::cout << "        Enhanced with Image Support                         \n";
+    std::cout << "                                                            \n";
+    std::cout << "════════════════════════════════════════════════════════════\n\n";
 }
 
 int main() {

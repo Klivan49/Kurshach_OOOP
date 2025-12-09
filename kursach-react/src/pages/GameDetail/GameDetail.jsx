@@ -67,10 +67,14 @@ function GameDetail({ game, user, onClose, onReviewAdded }) {
           <div className="detail-image">
             <img
               src={
+                game.ImageURL ||
                 game.image ||
                 `https://via.placeholder.com/300x450/1a1a1a/66cc33?text=${encodeURIComponent(game.Name)}`
               }
               alt={game.Name}
+              onError={(e) => {
+                e.target.src = `https://via.placeholder.com/300x450/1a1a1a/66cc33?text=${encodeURIComponent(game.Name)}`;
+              }}
             />
           </div>
 
