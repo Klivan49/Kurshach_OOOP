@@ -1,0 +1,52 @@
+{
+  "comment": "=== GAME RATING ADMIN PANEL CONFIGURATION ===",
+  "comment2": "Это файл конфигурации для админ-панели. НЕ КОММИТЬТЕ ЭТО В GIT!",
+  "comment3": "Добавьте config.json в .gitignore для безопасности пароля",
+  
+  "database": {
+    "host": "127.0.0.1",
+    "port": 3306,
+    "user": "root",
+    "password": "49K|ivan1708",
+    "database": "game_rating",
+    "charset": "utf8mb4"
+  },
+  
+  "ui": {
+    "width": 80,
+    "height": 24,
+    "enable_colors": true,
+    "enable_unicode_box": true,
+    "theme": "cyan"
+  },
+  
+  "features": {
+    "enable_statistics": true,
+    "enable_search": true,
+    "enable_export": false,
+    "enable_logging": true,
+    "log_file": "admin_panel.log"
+  },
+  
+  "validation": {
+    "min_username_length": 3,
+    "max_username_length": 50,
+    "min_password_length": 6,
+    "max_password_length": 100,
+    "min_game_name_length": 2,
+    "max_game_name_length": 100,
+    "min_description_length": 5,
+    "max_description_length": 500,
+    "mark_min": 1,
+    "mark_max": 10,
+    "year_min": 1900,
+    "year_max": 2100
+  },
+  
+  "security": {
+    "require_confirmation_on_delete": true,
+    "require_confirmation_on_admin_action": true,
+    "session_timeout_minutes": 30,
+    "max_login_attempts": 5
+  }
+}
