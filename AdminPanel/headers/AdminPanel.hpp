@@ -51,7 +51,6 @@ private:
     void printSeparator();
     void pause();
 
-    // Тройная буферизация
     // Обработчики меню
     void handleMainMenu();
     void handleUserMenu();
@@ -131,6 +130,7 @@ private:
     // Review operations
     void addReview();
     void viewGameReviews();
+    void deleteGameReviews();
 
     // Platform operations
     void showAllPlatforms();

@@ -928,6 +928,7 @@ void AdminPanel::handleReviewMenu() {
         std::vector<std::string> options = {
             "Add Review",
             "View Game Reviews",
+            "Delete Game Reviews"
             "Back to Main Menu"
         };
 
@@ -946,7 +947,8 @@ void AdminPanel::handleReviewMenu() {
             switch (selectedOption) {
                 case 0: addReview(); break;
                 case 1: viewGameReviews(); break;
-                case 2: return;
+                case 2: deleteGameReviews(); break;
+                case 3: return;
                 default: break;
             }
         }
@@ -978,6 +980,98 @@ void AdminPanel::addReview() {
     std::getchar();
 }
 
+void AdminPanel::deleteGameReviews() {
+    clearScreen();
+    printHeader("Delete Game Reviews");
+
+    // Получаем ID игры
+    int gameId = getValidatedGameId();
+
+    // Получаем все обзоры для этой игры
+    std::vector<ReviewData> reviews = reviewMgr->getGameReviews(gameId);
+
+    if (reviews.empty()) {
+        std::cout << "[ℹ] No reviews for this game.\n";
+    } else {
+        std::cout << "\n════════════════════════════════════════════════════════════════════\n";
+        std::cout << "              GAME REVIEWS                                          \n";
+        std::cout << "════════════════════════════════════════════════════════════════════\n";
+        std::cout << std::left << std::setw(5) << "ID" << std::setw(15) << "User ID" 
+                  << std::setw(8) << "Mark" << "Review Text\n";
+        std::cout << "────────────────────────────────────────────────────────────────────\n";
+
+        // Выводим все обзоры
+        for (const auto& review : reviews) {
+            std::string truncated = review.reviewText.length() > 40 
+                ? review.reviewText.substr(0, 37) + "..." 
+                : review.reviewText;
+            
+            std::cout << std::left << std::setw(5) << review.idReview 
+                      << std::setw(15) << review.idUser 
+                      << std::setw(8) << review.mark 
+                      << truncated << "\n";
+        }
+
+        // Получаем ID обзора для удаления
+        std::cout << "\n────────────────────────────────────────────────────────────────────\n";
+        int reviewId;
+        bool validReviewId = false;
+
+        while (!validReviewId) {
+            std::cout << "Enter review ID to delete (0 to cancel): ";
+            if (!(std::cin >> reviewId)) {
+                std::cin.clear();
+                std::cin.ignore(10000, '\n');
+                std::cerr << "✗ Invalid input! Please enter a number.\n";
+                continue;
+            }
+
+            // Проверка: 0 для отмены
+            if (reviewId == 0) {
+                std::cout << "[ℹ] Delete cancelled.\n";
+                system("pause");
+                return;
+            }
+
+            // Проверяем, существует ли обзор с таким ID и принадлежит ли он этой игре
+            bool reviewFound = false;
+            for (const auto& review : reviews) {
+                if (review.idReview == reviewId) {
+                    reviewFound = true;
+                    break;
+                }
+            }
+
+            if (reviewFound) {
+                validReviewId = true;
+                std::cout << "[✓] Review ID valid!\n";
+            } else {
+                std::cerr << "✗ ERROR: Review ID " << reviewId << " not found in this game!\n";
+                std::cout << "[↻] Please try again.\n\n";
+            }
+        }
+
+        // Запрашиваем подтверждение перед удалением
+        std::cout << "\n⚠ WARNING: Are you sure you want to delete this review? (yes/no): ";
+        std::string confirmation;
+        std::getline(std::cin >> std::ws, confirmation);
+
+        if (confirmation == "yes" || confirmation == "YES") {
+            // Удаляем обзор
+            if (reviewMgr->deleteReview(reviewId)) {
+                std::cout << "\n[✓] Review deleted successfully!\n";
+            } else {
+                std::cerr << "\n✗ Failed to delete review!\n";
+            }
+        } else {
+            std::cout << "[ℹ] Delete cancelled.\n";
+        }
+    }
+
+    system("pause");
+}
+
+
 void AdminPanel::viewGameReviews() {
     clearScreen();
     printHeader("View Game Reviews");
@@ -1008,8 +1102,7 @@ void AdminPanel::viewGameReviews() {
         }
     }
 
-    std::cout << "\nPress any key to continue...";
-    std::getchar();
+    system("pause");
 }
 
 // ============= PLATFORM MENU =============
