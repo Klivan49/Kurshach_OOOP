@@ -102,3 +102,6 @@ ui-debug.log
 *.seed
 *.pid.lock
 
+# Configs
+AdminPanel/config.json
+
