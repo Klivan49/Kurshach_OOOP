@@ -41,7 +41,7 @@
 Откройте терминал (или командную строку) и выполните:
 
 ```bash
-git clone https://github.com/ваш-username/ваш-репозиторий.git
+git clone https://github.com/ваш-username/Klivan49.git
 cd Kurshach_OOOP
 ```
 
