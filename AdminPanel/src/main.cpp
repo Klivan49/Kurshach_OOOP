@@ -1,12 +1,19 @@
 #include <iostream>
 #include <memory>
+#include <filesystem>
 #include <exception>
+#include <fstream>
+#include <nlohmann/json.hpp>
+
 #include "../headers/DatabaseConnection.hpp"
 #include "../headers/User.hpp"
 #include "../headers/Game.hpp"
 #include "../headers/Review.hpp"
 #include "../headers/Platform.hpp"
 #include "../headers/AdminPanel.hpp"
+
+using json = nlohmann::json;
+namespace fs = std::filesystem;
 
 void printStartupInfo() {
     std::cout << "\n";
@@ -25,13 +32,29 @@ int main() {
         // ========== DATABASE CONNECTION ==========
         std::cout << "[*] Connecting to database...\n";
         std::shared_ptr<DatabaseConnection> db;
+
+        std::ifstream file("config.json");
+
+        if (!file.is_open()) {
+            std::cerr << "[✗] ERROR: Could not open config.json\n";
+            std::cerr << "[*] Current working directory: " << fs::current_path() << "\n";
+            std::cerr << "[*] Looked for file at: " << fs::absolute("../config.json") << "\n";
+            throw std::runtime_error("config.json not found");
+        }
+
+        json obj = json::parse(file);
+
+        std::string host = obj["database"]["host"].get<std::string>();
+        std::string user = obj["database"]["user"].get<std::string>();
+        std::string password = obj["database"]["password"].get<std::string>();
+        std::string database = obj["database"]["database"].get<std::string>();
         
         try {
             db = std::make_shared<DatabaseConnection>(
-                "127.0.0.1",
-                "root",
-                "49K|ivan1708",  // Замените на ваш пароль MySQL
-                "game_rating"
+                host,
+                user,
+                password,  
+                database
             );
         } catch (const std::exception& e) {
             std::cerr << "\n[✗] FATAL ERROR: Cannot connect to database!\n";

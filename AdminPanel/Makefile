@@ -1,12 +1,19 @@
 # Makefile for Game Rating Admin Panel
 # Compatible with Windows (MinGW), Linux, and macOS
 
+
 # Detect OS
 UNAME_S := $(shell uname -s)
+
 
 # Compiler settings
 CXX = g++
 CXXFLAGS = -std=c++17 -Wall -Wextra -O2
+
+
+# JSON include path (добавлено)
+JSON_INC = -I./include
+
 
 # OS-specific include and lib paths
 ifeq ($(UNAME_S),Linux)
@@ -16,12 +23,14 @@ ifeq ($(UNAME_S),Linux)
     LIBS = -lmysqlclient
 endif
 
+
 ifeq ($(UNAME_S),Darwin)
     # macOS paths (Homebrew)
     INC_DIR = -I/usr/local/opt/mysql-client/include
     LIB_DIR = -L/usr/local/opt/mysql-client/lib
     LIBS = -lmysqlclient
 endif
+
 
 ifeq ($(OS),Windows_NT)
     # Windows (MinGW) paths - ADJUST PATHS IF NEEDED
@@ -35,6 +44,7 @@ else
     EXE_EXT = 
 endif
 
+
 SOURCES = src/main.cpp \
           src/DatabaseConnection.cpp \
           src/User.cpp \
@@ -43,14 +53,18 @@ SOURCES = src/main.cpp \
           src/Platform.cpp \
           src/AdminPanel.cpp
 
+
 # Object files
 OBJECTS = $(SOURCES:.cpp=.o)
+
 
 # Output executable
 TARGET = admin_panel$(EXE_EXT)
 
+
 # Default target
 all: $(TARGET)
+
 
 # Build the executable
 $(TARGET): $(OBJECTS)
@@ -58,10 +72,12 @@ $(TARGET): $(OBJECTS)
 	$(CXX) $(CXXFLAGS) -o $(TARGET) $(OBJECTS) $(LIB_DIR) $(LIBS)
 	@echo [SUCCESS] Build complete! Run with: ./$(TARGET)
 
-# Compile source files to object files
+
+# Compile source files to object files (обновлено с JSON_INC)
 src/%.o: src/%.cpp
 	@echo [COMPILE] Compiling $<...
-	$(CXX) $(CXXFLAGS) $(INC_DIR) -c $< -o $@
+	$(CXX) $(CXXFLAGS) $(JSON_INC) $(INC_DIR) -c $< -o $@
+
 
 # Clean build files
 clean:
@@ -70,13 +86,16 @@ clean:
 	$(RM_CMD) $(TARGET)
 	@echo [SUCCESS] Cleaned build files
 
+
 # Run the program
 run: $(TARGET)
 	@echo [RUN] Starting $(TARGET)...
 	./$(TARGET)
 
+
 # Rebuild
 rebuild: clean all
+
 
 # Print configuration
 info:
@@ -84,8 +103,10 @@ info:
 	@echo OS: $(UNAME_S)
 	@echo Compiler: $(CXX)
 	@echo Flags: $(CXXFLAGS)
+	@echo JSON Include: $(JSON_INC)
 	@echo Include: $(INC_DIR)
 	@echo Libs: $(LIB_DIR) $(LIBS)
 	@echo Target: $(TARGET)
+
 
 .PHONY: all clean run rebuild info
